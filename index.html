@@ -113,7 +113,7 @@ document.getElementById('sealBtn')
 
     setTimeout(() => {
         opening.style.display = 'none';
-
+        document.body.style.overflow = "auto";
         invitation.classList.add('show');
 
         document.getElementById('fixedBtns')
@@ -129,9 +129,52 @@ document.getElementById('sealBtn')
 function toggleLang(){let ar=document.body.classList.toggle('ar');document.getElementById('langBtn').textContent=ar?'🌐 Français':'🌐 عربي';document.documentElement.lang=ar?'ar':'fr'}
 function tryPlayMusic(){music.volume=.3;music.play().then(()=>{musicOn=true;document.getElementById('musicBtn').textContent='♫ Pause'}).catch(()=>{musicOn=false;document.getElementById('musicBtn').textContent='♫ Musique'})}
 function toggleMusic(){if(musicOn){music.pause();musicOn=false;document.getElementById('musicBtn').textContent='♫ Musique'}else tryPlayMusic()}
-function startAutoScroll(){if(autoScroll||window.matchMedia('(prefers-reduced-motion: reduce)').matches)return;autoScroll=true;let last=0;function step(t){if(!autoScroll)return;if(t-last>25){window.scrollBy(0,1);last=t}if(window.scrollY+innerHeight>=document.documentElement.scrollHeight-2){stopAutoScroll();return}scrollFrame=requestAnimationFrame(step)}scrollFrame=requestAnimationFrame(step)}
-function stopAutoScroll(){autoScroll=false;if(scrollFrame!==null)cancelAnimationFrame(scrollFrame)}
-window.addEventListener('touchstart',stopAutoScroll,{passive:true});window.addEventListener('wheel',stopAutoScroll,{passive:true});window.addEventListener('keydown',stopAutoScroll);
+let scrollTimer = null;
+let scrolling = false;
+
+function startAutoScroll() {
+    if (scrolling) return;
+
+    scrolling = true;
+    let last = 0;
+
+    function step(ts) {
+        if (!scrolling) return;
+
+        const maxScroll =
+            document.body.scrollHeight - window.innerHeight;
+
+        if (window.pageYOffset >= maxScroll - 2) {
+            scrolling = false;
+            return;
+        }
+
+        if (ts - last > 18) {
+            window.scrollBy(0, 1);
+            last = ts;
+        }
+
+        scrollTimer = requestAnimationFrame(step);
+    }
+
+    scrollTimer = requestAnimationFrame(step);
+
+    window.addEventListener('touchstart', stopScroll, {
+        once: true,
+        passive: true
+    });
+
+    window.addEventListener('wheel', stopScroll, {
+        once: true,
+        passive: true
+    });
+}
+
+function stopScroll() {
+    scrolling = false;
+    cancelAnimationFrame(scrollTimer);
+}
+    window.addEventListener('touchstart',stopAutoScroll,{passive:true});window.addEventListener('wheel',stopAutoScroll,{passive:true});window.addEventListener('keydown',stopAutoScroll);
 function spawnPetals(){for(let i=0;i<20;i++)setTimeout(()=>{let e=document.createElement('span');e.className='petal';e.textContent=['✧','❀','✦'][Math.floor(Math.random()*3)];e.style.left=Math.random()*100+'vw';e.style.fontSize=(12+Math.random()*15)+'px';e.style.animationDuration=(4+Math.random()*3)+'s';document.body.appendChild(e);setTimeout(()=>e.remove(),7500)},i*115)}
 </script>
 </body></html>
